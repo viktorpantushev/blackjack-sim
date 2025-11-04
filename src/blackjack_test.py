@@ -4,7 +4,7 @@ import time
 start_time = time.time()  
 SEED = np.random.seed(42)
 
-printe_es_aus = True
+printe_es_aus = False
 
 def printe_aus(message= '', ja_nein=False):
     if ja_nein == True:
@@ -129,21 +129,21 @@ def denk_logik(karten_chance, spielerbraucht, dealerbraucht):
     spieler_denkt_dealer_karte_kommt = 0
     
     if karten_chance < 0 and spielerbraucht >= 6:
-        spieler_denkt_spieler_karte_kommt = karten_chance
+        spieler_denkt_spieler_karte_kommt = 2 * abs(karten_chance)
     elif karten_chance < 0 and spielerbraucht < 6 and spielerbraucht > 3:
-        spieler_denkt_spieler_karte_kommt = karten_chance
+        spieler_denkt_spieler_karte_kommt = 1 * abs(karten_chance)
     elif karten_chance > 0 and spielerbraucht < 7:
         spieler_denkt_spieler_karte_kommt = -100
     elif karten_chance > 0 and spielerbraucht < 10:
-        spieler_denkt_spieler_karte_kommt = karten_chance
+        spieler_denkt_spieler_karte_kommt = 1 * abs(karten_chance)
     if karten_chance < 0 and dealerbraucht >= 6:
-        spieler_denkt_dealer_karte_kommt = karten_chance
+        spieler_denkt_dealer_karte_kommt = 2 * abs(karten_chance)
     elif karten_chance < 0 and dealerbraucht < 6 and dealerbraucht > 3:
-        spieler_denkt_dealer_karte_kommt = karten_chance
+        spieler_denkt_dealer_karte_kommt = 1 * abs(karten_chance)
     elif karten_chance > 0 and dealerbraucht < 7:
         spieler_denkt_dealer_karte_kommt = -100
     elif karten_chance > 0 and dealerbraucht < 10:
-        spieler_denkt_dealer_karte_kommt = karten_chance 
+        spieler_denkt_dealer_karte_kommt = 1 * abs(karten_chance)
     
 
     return spieler_denkt_spieler_karte_kommt, spieler_denkt_dealer_karte_kommt
@@ -247,6 +247,7 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
 
 
 def blackjack():
+    runden = 0
     deck = deck_erstellen(4)
     uebrige_karten = len(deck)
     spieler_buget = 1000
@@ -255,15 +256,19 @@ def blackjack():
 
 
     while uebrige_karten > 10 and spieler_buget > 0 and dealer_buget > 0:
-        
+        runden += 1
         spieler_buget, dealer_buget, deck, bisherige_karten = blackjack_spielrunde(spieler_buget,dealer_buget,deck, bisherige_karten, 'erster Test', 'erster Test')
         printe_aus(f'spieler_buget {spieler_buget}', printe_es_aus)
         printe_aus(f'dealer_buget {dealer_buget}', printe_es_aus)
         uebrige_karten = len(deck)
+    printe_aus(f'Runde {runden}', True)
+    return spieler_buget, dealer_buget
         
 
 for _ in range (1_000):
-    blackjack()
+    spieler_buget, dealer_buget = blackjack()
+    printe_aus(f'Spielerbuget {spieler_buget}', True)
+    printe_aus(f'Dealer_buget {dealer_buget}', True)
 
 end_time = time.time()
 elapsed_time = end_time - start_time
