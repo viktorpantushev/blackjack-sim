@@ -4,7 +4,7 @@ import time
 start_time = time.time()  
 #SEED = np.random.seed(42)
 
-printe_es_aus = False
+printe_es_aus = True
 
 def printe_aus(message= '', ja_nein=False):
     if ja_nein == True:
@@ -124,29 +124,32 @@ def gewinnt_spieler(spieler_hand, dealer_hand, punktlandung=False):
 
 
 #Fix naming
-def denk_logik(karten_chance, spielerbraucht, dealerbraucht):
-    spieler_denkt_spieler_karte_kommt = 0
-    spieler_denkt_dealer_karte_kommt = 0
+def denk_logik(karten_chance, spieler_brauche, gegenspieler_braucht):
+    spieler_karte_kommt = 0
+    gegenspieler_karte_kommt = 0
     
-    if karten_chance < 0 and spielerbraucht >= 6:
-        spieler_denkt_spieler_karte_kommt = 2 * abs(karten_chance)
-    elif karten_chance < 0 and spielerbraucht < 6 and spielerbraucht > 3:
-        spieler_denkt_spieler_karte_kommt = 1 * abs(karten_chance)
-    elif karten_chance > 0 and spielerbraucht < 7:
-        spieler_denkt_spieler_karte_kommt = -100
-    elif karten_chance > 0 and spielerbraucht < 10:
-        spieler_denkt_spieler_karte_kommt = 1 * abs(karten_chance)
-    if karten_chance < 0 and dealerbraucht >= 6:
-        spieler_denkt_dealer_karte_kommt = 2 * abs(karten_chance)
-    elif karten_chance < 0 and dealerbraucht < 6 and dealerbraucht > 3:
-        spieler_denkt_dealer_karte_kommt = 1 * abs(karten_chance)
-    elif karten_chance > 0 and dealerbraucht < 7:
-        spieler_denkt_dealer_karte_kommt = -100
-    elif karten_chance > 0 and dealerbraucht < 10:
-        spieler_denkt_dealer_karte_kommt = 1 * abs(karten_chance)
-    
+    if karten_chance < 0 and spieler_brauche >= 6:
+        spieler_karte_kommt = 2 * abs(karten_chance)
+    elif karten_chance < 0 and spieler_brauche < 6 and spieler_brauche > 3:
+        spieler_karte_kommt = 1 * abs(karten_chance)
+    elif karten_chance > 0 and spieler_brauche < 7:
+        spieler_karte_kommt = -100
+    elif karten_chance > 0 and spieler_brauche < 10:
+        spieler_karte_kommt = 1 * abs(karten_chance)
+    elif karten_chance > 0 and spieler_brauche > 10:
+        spieler_karte_kommt = 2 * abs(karten_chance)
+    if karten_chance < 0 and gegenspieler_braucht >= 6:
+        gegenspieler_karte_kommt = 2 * abs(karten_chance)
+    elif karten_chance < 0 and gegenspieler_braucht < 6 and gegenspieler_braucht > 3:
+        gegenspieler_karte_kommt = 1 * abs(karten_chance)
+    elif karten_chance > 0 and gegenspieler_braucht < 7:
+        gegenspieler_karte_kommt = -100
+    elif karten_chance > 0 and gegenspieler_braucht < 10:
+        gegenspieler_karte_kommt = 1 * abs(karten_chance)
+    elif karten_chance > 0 and gegenspieler_braucht > 10:
+        gegenspieler_karte_kommt = 2 * abs(karten_chance)
 
-    return spieler_denkt_spieler_karte_kommt, spieler_denkt_dealer_karte_kommt
+    return spieler_karte_kommt, gegenspieler_karte_kommt
 
 
 def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, dealerstrategie):
@@ -217,9 +220,7 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
         printe_aus(f'Spieler braucht: {spielerbraucht}', printe_es_aus)
         printe_aus(f'Dealerhand: {dealer_karten_total}', printe_es_aus)
         printe_aus(f'Dealer braucht: {dealerbraucht}', printe_es_aus)
-        spieler_denkt_spieler_karte_kommt = 0.0
-        spieler_denkt_dealer_karte_kommt = 0.0
-        #Kleine Karte <=5; Große Karte >= 10
+
         spieler_denkt_spieler_karte_kommt, spieler_denkt_dealer_karte_kommt = denk_logik(karten_chance, spielerbraucht, dealerbraucht)
         
 
@@ -233,9 +234,6 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
         karten_chance = berechne_kommende_karte(dealer_karten_total, dealerstrategie, bisherige_karten, uebrige_karten)
         dealerbraucht = 21 - hand_berechnen(dealer_karten_total)
         spielerbraucht = 21 - hand_berechnen(spieler_karten_total)
-        dealer_denkt_spieler_karte_kommt = 0.0
-        dealer_denkt_dealer_karte_kommt = 0.0
-        #Kleine Karte <=5; Große Karte >= 10
         
         dealer_denkt_dealer_karte_kommt, dealer_denkt_spieler_karte_kommt= denk_logik(karten_chance, dealerbraucht, spielerbraucht)
 
