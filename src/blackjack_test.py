@@ -2,7 +2,7 @@ import numpy as np
 import time
 
 start_time = time.time()  
-SEED = np.random.seed(42)
+#SEED = np.random.seed(42)
 
 printe_es_aus = False
 
@@ -180,20 +180,29 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
 
         #Patt
         if gewinnt_spieler(spieler_karten_total, dealer_karten_total, True) and gewinnt_spieler(dealer_karten_total, spieler_karten_total, True):
-            printe_aus("Patt", printe_es_aus)
+            printe_aus("Patt", True)
+            printe_aus(hand_berechnen(spieler_karten_total), True)
+            printe_aus((spieler_karten_total), True)
             spieler_buget += einsatz/2
             dealer_buget += einsatz/2
             return spieler_buget, dealer_buget, deck, bisherige_karten
         #Spieler gewinnt
         elif gewinnt_spieler(spieler_karten_total, dealer_karten_total, True):
-            printe_aus("Spieler gewinnt", printe_es_aus)
+            printe_aus("Spieler gewinnt", True)
+            printe_aus(hand_berechnen(spieler_karten_total), True)
+            printe_aus((spieler_karten_total), True)
+            spieler_buget
             spieler_buget += einsatz
             return spieler_buget, dealer_buget, deck, bisherige_karten
         #Dealer gewinnt
         elif gewinnt_spieler(dealer_karten_total, spieler_karten_total, True):
-            printe_aus("Dealer gewinnt", printe_es_aus)
+            printe_aus("Dealer gewinnt", True)
+            printe_aus(hand_berechnen(dealer_karten_total), True)
+            printe_aus((dealer_karten_total), True)
             dealer_buget += einsatz
             return spieler_buget, dealer_buget, deck, bisherige_karten
+        else:
+            printe_aus('Niemand gewinnt', True)
 
         einsatz += einsatz_temp
         spieler_buget -= einsatz_temp/2
