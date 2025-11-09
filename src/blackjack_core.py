@@ -29,6 +29,8 @@ def hand_berechnen(hand):
     return wert
 
 
+
+
 def deck_erstellen(decks):
     '''
     Deck erstellen

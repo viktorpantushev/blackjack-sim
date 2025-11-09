@@ -2,9 +2,9 @@ import numpy as np
 import time
 
 start_time = time.time()  
-#SEED = np.random.seed(42)
+SEED = np.random.seed(42)
 
-printe_es_aus = True
+printe_es_aus = False
 
 def printe_aus(message= '', ja_nein=False):
     if ja_nein == True:
@@ -99,6 +99,45 @@ def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_k
         else:
             return 0
 
+    if zaehlweise == 'zweiter Test':
+        eigene_hand = 21 - hand_berechnen(eigene_hand)
+        plusminus = 0
+        niedrig = 0
+        for karte in bisherige_karten:
+            if karte in ['K', 'Q', 'J', '10']:
+                plusminus += 1
+            elif karte in  ['2', '3', '4', '5']:
+                if karte in ['2', '3']:
+                    niedrig += 1
+                    plusminus -= 1
+                else:
+                    plusminus -= 1
+
+        if plusminus >= 4:
+            return 0.6
+        elif plusminus >= 2:
+            return 0.3
+        elif plusminus >= 1:
+            return 0.15
+        elif plusminus == 0:
+            return 0
+        elif plusminus <= -4:
+            if niedrig * 5 > uebrige_karten:
+                return -1.2
+            else:
+                return -0.6
+        elif plusminus <= -2:
+            if niedrig * 5 > uebrige_karten:
+                return -0.6
+            else:
+                return -0.3
+        elif plusminus <= 1:
+            if niedrig * 5 > uebrige_karten:
+                return -0.3
+            else:
+                return -0.15
+        else:
+            return 0
 
 
 def gewinnt_spieler(spieler_hand, dealer_hand, punktlandung=False):
@@ -155,7 +194,7 @@ def denk_logik(karten_chance, spieler_brauche, gegenspieler_braucht):
 def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, dealerstrategie):
     uebrige_karten = len(deck)
     einsatz = 0
-    while uebrige_karten > 10 and spieler_buget > 0 and dealer_buget > 0:
+    while uebrige_karten > 5 and spieler_buget > 0 and dealer_buget > 0:
         printe_aus(f'Spielerbuget: {spieler_buget}', printe_es_aus)
         printe_aus(f'Dealerbuget: {dealer_buget}', printe_es_aus)
         
@@ -183,29 +222,28 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
 
         #Patt
         if gewinnt_spieler(spieler_karten_total, dealer_karten_total, True) and gewinnt_spieler(dealer_karten_total, spieler_karten_total, True):
-            printe_aus("Patt", True)
-            printe_aus(hand_berechnen(spieler_karten_total), True)
-            printe_aus((spieler_karten_total), True)
-            spieler_buget += einsatz/2
-            dealer_buget += einsatz/2
+            printe_aus("Patt", printe_es_aus)
+            printe_aus(hand_berechnen(spieler_karten_total), printe_es_aus)
+            printe_aus((spieler_karten_total), printe_es_aus)
+            dealer_buget += einsatz
             return spieler_buget, dealer_buget, deck, bisherige_karten
         #Spieler gewinnt
         elif gewinnt_spieler(spieler_karten_total, dealer_karten_total, True):
-            printe_aus("Spieler gewinnt", True)
-            printe_aus(hand_berechnen(spieler_karten_total), True)
-            printe_aus((spieler_karten_total), True)
+            printe_aus("Spieler gewinnt", printe_es_aus)
+            printe_aus(hand_berechnen(spieler_karten_total), printe_es_aus)
+            printe_aus((spieler_karten_total), printe_es_aus)
             spieler_buget
             spieler_buget += einsatz
             return spieler_buget, dealer_buget, deck, bisherige_karten
         #Dealer gewinnt
         elif gewinnt_spieler(dealer_karten_total, spieler_karten_total, True):
-            printe_aus("Dealer gewinnt", True)
-            printe_aus(hand_berechnen(dealer_karten_total), True)
-            printe_aus((dealer_karten_total), True)
+            printe_aus("Dealer gewinnt", printe_es_aus)
+            printe_aus(hand_berechnen(dealer_karten_total), printe_es_aus)
+            printe_aus((dealer_karten_total), printe_es_aus)
             dealer_buget += einsatz
             return spieler_buget, dealer_buget, deck, bisherige_karten
         else:
-            printe_aus('Niemand gewinnt', True)
+            printe_aus('Niemand gewinnt', printe_es_aus)
 
         einsatz += einsatz_temp
         spieler_buget -= einsatz_temp/2
@@ -215,6 +253,7 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
         karten_chance = berechne_kommende_karte(spieler_karten_total, spielerstrategie, bisherige_karten, uebrige_karten)
         dealerbraucht = 21 - hand_berechnen(dealer_karten_total)
         spielerbraucht = 21 - hand_berechnen(spieler_karten_total)
+
         printe_aus(f'Einsatz: {einsatz}', printe_es_aus)
         printe_aus(f'Spielerhand: {spieler_karten_total}', printe_es_aus)
         printe_aus(f'Spieler braucht: {spielerbraucht}', printe_es_aus)
@@ -222,12 +261,23 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
         printe_aus(f'Dealer braucht: {dealerbraucht}', printe_es_aus)
 
         spieler_denkt_spieler_karte_kommt, spieler_denkt_dealer_karte_kommt = denk_logik(karten_chance, spielerbraucht, dealerbraucht)
-        
 
         printe_aus(f'Kartenchance: {karten_chance}', printe_es_aus)
         printe_aus(f'Spieler denkt Spieler karte kommt: {spieler_denkt_spieler_karte_kommt}', printe_es_aus)
         printe_aus(f'Spieler denkt Dealer karte kommt: {spieler_denkt_dealer_karte_kommt}', printe_es_aus)
-        
+
+
+        if spieler_denkt_spieler_karte_kommt == -100:
+            continue
+        elif spieler_denkt_dealer_karte_kommt == -100 and spieler_denkt_spieler_karte_kommt > 0.3:
+            spieler_karten, deck = karte_austeilen(deck)
+            spieler_karten_total.append(spieler_karten)
+            bisherige_karten.append(spieler_karten)
+        elif spieler_denkt_spieler_karte_kommt > 0:
+            spieler_karten, deck = karte_austeilen(deck)
+            spieler_karten_total.append(spieler_karten)
+            bisherige_karten.append(spieler_karten)
+
 
 
         #Dealer denkt nach
@@ -235,7 +285,19 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
         dealerbraucht = 21 - hand_berechnen(dealer_karten_total)
         spielerbraucht = 21 - hand_berechnen(spieler_karten_total)
         
-        dealer_denkt_dealer_karte_kommt, dealer_denkt_spieler_karte_kommt= denk_logik(karten_chance, dealerbraucht, spielerbraucht)
+        dealer_denkt_dealer_karte_kommt, dealer_denkt_spieler_karte_kommt = denk_logik(karten_chance, dealerbraucht, spielerbraucht)
+
+        if dealer_denkt_spieler_karte_kommt == -100:
+            continue
+        elif dealer_denkt_dealer_karte_kommt == -100 and dealer_denkt_spieler_karte_kommt > 0.3:
+            dealer_karten, deck = karte_austeilen(deck)
+            dealer_karten_total.append(dealer_karten)
+            bisherige_karten.append(dealer_karten)
+        elif dealer_denkt_spieler_karte_kommt > 0:
+            dealer_karten, deck = karte_austeilen(deck)
+            dealer_karten_total.append(dealer_karten)
+            bisherige_karten.append(dealer_karten)
+
 
 
         printe_aus(f'Kartenchance: {karten_chance}', printe_es_aus)
@@ -255,27 +317,50 @@ def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, sp
 
 def blackjack():
     runden = 0
-    deck = deck_erstellen(4)
+    deck = deck_erstellen(8)
     uebrige_karten = len(deck)
     spieler_buget = 1000
     dealer_buget = 1000
     bisherige_karten = []
 
 
-    while uebrige_karten > 10 and spieler_buget > 0 and dealer_buget > 0:
+    while uebrige_karten > 5 and spieler_buget > 0 and dealer_buget > 0:
         runden += 1
-        spieler_buget, dealer_buget, deck, bisherige_karten = blackjack_spielrunde(spieler_buget,dealer_buget,deck, bisherige_karten, 'erster Test', 'erster Test')
+        spieler_buget, dealer_buget, deck, bisherige_karten = blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, 'erster Test', 'erster Test')
         printe_aus(f'spieler_buget {spieler_buget}', printe_es_aus)
         printe_aus(f'dealer_buget {dealer_buget}', printe_es_aus)
         uebrige_karten = len(deck)
-    printe_aus(f'Runde {runden}', True)
+    printe_aus(f'Runde {runden}', printe_es_aus)
     return spieler_buget, dealer_buget
-        
 
-for _ in range (1_000):
+
+
+
+
+
+
+
+
+
+
+
+spielergesamt = 0
+dealergesamt = 0
+iteration = 10_000
+
+for _ in range (iteration):
     spieler_buget, dealer_buget = blackjack()
-    printe_aus(f'Spielerbuget {spieler_buget}', True)
-    printe_aus(f'Dealer_buget {dealer_buget}', True)
+    spielergesamt += spieler_buget
+    dealergesamt += dealer_buget
+    printe_aus(f'Spielerbuget {spieler_buget}', printe_es_aus)
+    printe_aus(f'Dealer_buget {dealer_buget}', printe_es_aus)
+
+spielergesamt /= iteration
+dealergesamt /= iteration
+
+printe_aus(f'Spieler gesamt: {spielergesamt}', True)
+printe_aus(f'Dealer gesamt: {dealergesamt}', True)
+
 
 end_time = time.time()
 elapsed_time = end_time - start_time
