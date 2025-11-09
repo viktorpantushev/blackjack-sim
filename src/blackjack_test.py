@@ -8,7 +8,7 @@ printe_es_aus = False
 
 def printe_aus(message= '', ja_nein=False):
     if ja_nein == True:
-        print(message)
+        print(message, "+")
 
 
 
