@@ -4,6 +4,7 @@ from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen
 
 start_time = time.time()
 SEED = np.random.seed(42)
+#seed sequence
 
 
 
@@ -42,6 +43,7 @@ def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_k
             return 0
 
     if zaehlweise == 'zweiter Test':
+        b= 5
         eigene_hand = 21 - hand_berechnen(eigene_hand)
         plusminus = 0
         niedrig = 0
@@ -56,26 +58,26 @@ def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_k
                     plusminus -= 1
 
         #print('Plusminus', plusminus * 0.15)
-        if plusminus >= 4:
+        if plusminus >= a*2:
             return 0.6
-        elif plusminus >= 2:
+        elif plusminus >= a:
             return 0.3
-        elif plusminus >= 1:
+        elif plusminus >= a/2:
             return 0.15
         elif plusminus == 0:
             return 0
-        elif plusminus <= -4:
-            if niedrig * 5 > uebrige_karten:
+        elif plusminus <= -a*2:
+            if niedrig * b > uebrige_karten:
                 return -1.2
             else:
                 return -0.6
-        elif plusminus <= -2:
-            if niedrig * 5 > uebrige_karten:
+        elif plusminus <= -a:
+            if niedrig * b > uebrige_karten:
                 return -0.6
             else:
                 return -0.3
-        elif plusminus <= 1:
-            if niedrig * 5 > uebrige_karten:
+        elif plusminus <= a/2:
+            if niedrig * b > uebrige_karten:
                 return -0.3
             else:
                 return -0.15
@@ -131,7 +133,7 @@ def dealer_spielt(dealer_hand):
 
 
 
-def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, dealerstrategie, a=5):
+def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, a=5):
     uebrige_karten = len(deck)
     spieler_in = True
     dealer_in = True
@@ -145,12 +147,20 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
     spieler_karten_total.append(spieler_karten)
     bisherige_karten.append(spieler_karten)
 
+    einsatz_t = 10
+    spieler_buget -= einsatz_t
+    dealer_buget -= einsatz_t
+    einsatz = 0
+    einsatz += einsatz_t*2
+
     if gewinnt_spieler(spieler_karten_total, dealer_karten_total, True):
-        return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, dealerstrategie, True
+        spieler_buget += einsatz_t
+        return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, True
 
     else:
+        erste_runde = True
         uebrige_karten = len(deck)
-        while spieler_in and uebrige_karten > 5:
+        while spieler_in and uebrige_karten > 2:
             karten_chance = berechne_kommende_karte(spieler_karten_total, spielerstrategie, bisherige_karten,
                                                     uebrige_karten)
             #dealerbraucht = 21 - hand_berechnen(dealer_karten_total)
@@ -162,6 +172,16 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
             if spieler_denkt_spieler_karte_kommt == -100:
                 spieler_in = False
             elif spieler_denkt_spieler_karte_kommt > 0.15:
+                if erste_runde:
+                    #Einsatz erhöhen
+                    einsatz_t += 100 * spieler_denkt_spieler_karte_kommt
+                    einsatz += einsatz_t*2
+                    spieler_buget -= einsatz_t
+                    dealer_buget -= einsatz_t
+                    erste_runde = False
+                
+
+
                 spieler_karten, deck = karte_austeilen(deck)
                 spieler_karten_total.append(spieler_karten)
                 bisherige_karten.append(spieler_karten)
@@ -172,12 +192,13 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
 
             if hand_berechnen(spieler_karten_total) > 21:
                 #print('Spieler überschiesst')
+
                 spieler_in = False
 
 
             uebrige_karten = len(deck)
     
-        while dealer_in and uebrige_karten > 5:
+        while dealer_in and uebrige_karten > 2:
             dealer_wert = dealer_spielt(dealer_karten_total)
 
             if dealer_wert == 'Nehmen':
@@ -193,7 +214,12 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
 
             uebrige_karten = len(deck)
         
-        wer_gewinnt = gewinnt_spieler(spieler_karten_total, dealer_karten_total)
+    wer_gewinnt = gewinnt_spieler(spieler_karten_total, dealer_karten_total)
+    #Spieler gewinnt
+    if wer_gewinnt:
+        spieler_buget += einsatz
+    else:
+        dealer_buget += einsatz
 
 
-    return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, dealerstrategie, wer_gewinnt
+    return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, wer_gewinnt
