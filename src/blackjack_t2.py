@@ -105,8 +105,9 @@ def gewinnt_spieler(spieler_hand, dealer_hand, punktlandung=False):
                 return True
 
 
-def denk_logik(karten_chance, spieler_brauche, a = 5):
+def denk_logik(karten_chance, spieler_brauche, a = 5, spieler = 'Spieler'):
     spieler_karte_kommt = 0
+
 
     if karten_chance < 0 and spieler_brauche >= 6:
         spieler_karte_kommt = 2 * abs(karten_chance)
@@ -122,14 +123,18 @@ def denk_logik(karten_chance, spieler_brauche, a = 5):
     return spieler_karte_kommt
 
 
-#def dealer_logik():
-    #print()
+def dealer_spielt(dealer_hand):
+    if hand_berechnen(dealer_hand) >= 17:
+        return 'Nicht nehmen'
+    else:
+        return 'Nehmen'
 
 
-def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, dealerstrategie):
-    print('TRAALALALALAl')
+
+def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, dealerstrategie, a=5):
     uebrige_karten = len(deck)
     spieler_in = True
+    dealer_in = True
     spieler_karten_total = []
     dealer_karten_total = []
 
@@ -141,7 +146,7 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
     bisherige_karten.append(spieler_karten)
 
     if gewinnt_spieler(spieler_karten_total, dealer_karten_total, True):
-        return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, dealerstrategie
+        return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, dealerstrategie, True
 
     else:
         uebrige_karten = len(deck)
@@ -153,8 +158,7 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
             spielerbraucht = 21 - hand_berechnen(spieler_karten_total)
             #print('Spieler braucht ', spielerbraucht)
 
-            spieler_denkt_spieler_karte_kommt = denk_logik(karten_chance,
-                                                                                             spielerbraucht)
+            spieler_denkt_spieler_karte_kommt = denk_logik(karten_chance,spielerbraucht, a=a)
             if spieler_denkt_spieler_karte_kommt == -100:
                 spieler_in = False
             elif spieler_denkt_spieler_karte_kommt > 0.15:
@@ -172,4 +176,24 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
 
 
             uebrige_karten = len(deck)
-    return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, dealerstrategie
+    
+        while dealer_in and uebrige_karten > 5:
+            dealer_wert = dealer_spielt(dealer_karten_total)
+
+            if dealer_wert == 'Nehmen':
+                dealer_karten, deck = karte_austeilen(deck)
+                dealer_karten_total.append(dealer_karten)
+                bisherige_karten.append(dealer_karten)
+            else:
+                dealer_in = False
+
+            if hand_berechnen(spieler_karten_total) > 21:
+                #print('Spieler überschiesst')
+                dealer_in = False
+
+            uebrige_karten = len(deck)
+        
+        wer_gewinnt = gewinnt_spieler(spieler_karten_total, dealer_karten_total)
+
+
+    return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, dealerstrategie, wer_gewinnt

@@ -55,4 +55,3 @@ def karte_austeilen(deck):
     m = deck.pop()
     karten.append(m)
     return m, deck
-
