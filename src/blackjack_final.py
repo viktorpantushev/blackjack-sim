@@ -4,11 +4,11 @@ from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen, gewi
 
 class Blackjack:
     def __init__(self, zaehlweise_spieler, a=2, b=4):
-        self.resetGame()
         self.zaehlweise_spieler = zaehlweise_spieler
         self.a = a
         self.b = b
         self.spiel_resets = 0
+        self.resetGame()
         print('Blackjack initializiert')
 
     def resetGame(self):
