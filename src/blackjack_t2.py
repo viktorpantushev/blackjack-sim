@@ -3,19 +3,18 @@ import time
 from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen
 
 start_time = time.time()
-SEED = np.random.seed(42)
+#SEED = np.random.seed(42)
 #seed sequence
 
 
 
-def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_karten):
+def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_karten, a=2,b=3):
     '''
     Wie sicher kommen gute Karten?
     Input: eigene Hand, Zaehlweise, Kartenhistorie aller Spieler, Anzahl übriger Karten
     Output: Zuverlässigkeits-Score
     '''
-    a = 2
-
+    
     if zaehlweise == 'erster Test':
         eigene_hand = 21 - hand_berechnen(eigene_hand)
         plusminus = 0
@@ -43,8 +42,6 @@ def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_k
             return 0
 
     if zaehlweise == 'zweiter Test':
-        b= 5
-        eigene_hand = 21 - hand_berechnen(eigene_hand)
         plusminus = 0
         niedrig = 0
         for karte in bisherige_karten:

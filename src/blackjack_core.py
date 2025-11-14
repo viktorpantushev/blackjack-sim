@@ -1,6 +1,29 @@
 import numpy as np
 
 
+def gewinnt_spieler(spieler_hand, dealer_hand, punktlandung=False):
+    '''
+    Gewinnt der Spieler, bzw mach er eine Punktlandung
+    Input: Spielerhand, Dealerhand, Punktlandung
+    Output: Spieler gewinnt? Boolean
+    '''
+    '''Rückgabe Spieler gewinne -> true sonst false'''
+    if punktlandung:
+        if hand_berechnen(spieler_hand) == 21:
+            return True
+        else:
+            return False
+    else:
+        if   (21 - hand_berechnen(spieler_hand)) < (21 - hand_berechnen(dealer_hand)):
+            return True
+        elif (21 - hand_berechnen(spieler_hand)) > (21 - hand_berechnen(dealer_hand)):
+            return False
+        elif (21 - hand_berechnen(spieler_hand)) == (21 - hand_berechnen(dealer_hand)):
+            if len(spieler_hand) > len(dealer_hand):
+                return False
+            elif len(spieler_hand) < len(dealer_hand):
+                return True
+
 
 def hand_berechnen(hand):
     '''
