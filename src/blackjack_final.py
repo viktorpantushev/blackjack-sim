@@ -8,14 +8,16 @@ class Blackjack:
         self.a = a
         self.b = b
         self.spiel_resets = 0
+        self.decksize = 6
+        self.spieler_karte_kommt = 0
         self.resetGame()
-        print('Blackjack initializiert')
+        #print('Blackjack initializiert')
 
     def resetGame(self, moneyreset=True):
         self.spielerhand = []
         self.dealerhand = []
         self.bisherige_karten = []
-        self.deck = deck_erstellen(6)
+        self.deck = deck_erstellen(self.decksize)
         self.uebrige_karten = len(self.deck)
         self.einsatz = 0
 
@@ -23,16 +25,14 @@ class Blackjack:
             self.spieler_buget = 1000
             self.dealer_buget = 1000
 
-    @property
     def get_money(self):
         return self.spieler_buget, self.dealer_buget
 
-    @property
     def get_resets(self):
         return self.spiel_resets
 
 
-    def set_A_and_B(a,b):
+    def set_A_and_B(self, a,b):
         self.a = a
         self.b = b
 
@@ -55,7 +55,7 @@ class Blackjack:
                     plusminus += 1
                 elif karte in ['2', '3', '4', '5']:
                     plusminus -= 1
-            
+
 
             if plusminus >= self.a*2:
                 sicherheit = 0.6
@@ -87,12 +87,11 @@ class Blackjack:
             elif sicherheit > 0 and spieler_brauche > 10:
                 spieler_karte_kommt = 2 * abs(sicherheit)
 
-            
+
             if spieler_karte_kommt > 0.15:
                 return 'Nehmen'
             else:
                 return 'Nicht Nehmen'
-        
         
         elif self.zaehlweise_spieler == 'Viktors Special':
             plusminus = 0
@@ -147,12 +146,17 @@ class Blackjack:
             elif sicherheit > 0 and spieler_brauche > 10:
                 spieler_karte_kommt = 2 * abs(sicherheit)
 
-            
+            self.spieler_karte_kommt = spieler_karte_kommt
             if spieler_karte_kommt > 0.15:
                 return 'Nehmen'
             else:
                 return 'Nicht Nehmen'      
         
+        elif self.zaehlweise_spieler == 'Dealer':
+            if hand_berechnen(self.dealerhand) >= 17:
+                return 'Nicht Nehmen'
+            else:
+                return 'Nehmen'
     def __dealer_spielt(self):
         if hand_berechnen(self.dealerhand) >= 17:
             return 'Nicht Nehmen'
@@ -163,7 +167,7 @@ class Blackjack:
         self.spielerhand = []
         self.dealerhand = []
         self.uebrige_karten = len(self.deck)
-        if self.uebrige_karten > 6 and self.spieler_buget > 100 and self.dealer_buget > 100:
+        if self.uebrige_karten > 6 and self.spieler_buget > 200 and self.dealer_buget > 200 and self.spieler_buget <  1800 and self.dealer_buget < 1800:
             for i in range(2):
                 spieler_karten, self.deck = karte_austeilen(self.deck)
                 self.spielerhand.append(spieler_karten)
@@ -174,13 +178,24 @@ class Blackjack:
                 self.dealerhand.append(dealer_karten)
                 self.bisherige_karten.append(dealer_karten)
 
-            einsatz_t = 70
+
+            verbleiben = (self.decksize + self.uebrige_karten) / self.uebrige_karten
+            if verbleiben > 3:
+                verbleiben = 3
+            elif verbleiben < 1:
+                verbleiben = 1
+
+            einsatz_t = int(10 * (verbleiben))
             self.spieler_buget -= einsatz_t
             self.dealer_buget -= einsatz_t
             self.einsatz += einsatz_t*2
 
-            if gewinnt_spieler(self.dealerhand, self.spielerhand, True):
+            if gewinnt_spieler(self.dealerhand, self.spielerhand, True) and not gewinnt_spieler(self.spielerhand, self.dealerhand, True):
                 self.dealer_buget += self.einsatz
+                self.einsatz = 0
+            elif gewinnt_spieler(self.dealerhand, self.spielerhand, True) and gewinnt_spieler(self.spielerhand, self.dealerhand, True):
+                self.dealer_buget += self.einsatz/2
+                self.spieler_buget += self.einsatz/2
                 self.einsatz = 0
             elif gewinnt_spieler(self.spielerhand, self.dealerhand, True):
                 self.spieler_buget += self.einsatz
@@ -202,7 +217,17 @@ class Blackjack:
                         self.bisherige_karten.append(spieler_karten)
                         if erste_runde:
                             #Eisatz setzten
-                            einsatz_t = 150
+                            verbleiben = (self.decksize + self.uebrige_karten) / self.uebrige_karten
+                            if verbleiben > 3:
+                                verbleiben = 3
+                            elif verbleiben < 1:
+                                verbleiben = 1
+
+                            karte_kommt = self.spieler_karte_kommt
+                            if self.spieler_karte_kommt < 1:
+                                karte_kommt = 1
+
+                            einsatz_t = int(30 * (verbleiben) * (karte_kommt*6))
                             self.einsatz += einsatz_t*2
                             self.spieler_buget -= einsatz_t
                             self.dealer_buget -= einsatz_t
@@ -263,13 +288,12 @@ class Blackjack:
                 self.einsatz = 0
 
         else:
-            if self.spieler_buget < 100 or self.dealer_buget < 100:
+            if self.spieler_buget <= 200 or self.dealer_buget <= 200 or self.spieler_buget >=  1800 or self.dealer_buget >= 1800:
                 self.spiel_resets += 1
                 tempspieler, tempdealer = self.spieler_buget, self.dealer_buget
                 self.resetGame()
                 return tempspieler, tempdealer
             else:
                 self.resetGame(moneyreset=False)
-                return 0,0
             
         return 0,0
