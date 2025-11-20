@@ -156,6 +156,9 @@ class Blackjack:
                 spieler_karte_kommt = -100
             elif sicherheit > 0 and spieler_brauche < 10:
                 spieler_karte_kommt = 1 * abs(sicherheit)
+            else:
+                print('lol ', sicherheit, ' ', spieler_brauche)
+            
 
             self.spieler_karte_kommt = spieler_karte_kommt
             if spieler_karte_kommt > 0.15:
@@ -182,7 +185,7 @@ class Blackjack:
         self.uebrige_karten = len(self.deck)
         
         self.rundenlaenge += 1
-        if (self.uebrige_karten > 6 and self.spieler_buget > int(self.buget/2) and self.dealer_buget > int(self.buget/2)):
+        if (self.uebrige_karten > int(float(self.decksize)*52.0*0.3) and self.spieler_buget > int(self.buget/2) and self.dealer_buget > int(self.buget/2)):
             self.rundenlaenge += 1
             for i in range(2):
                 spieler_karten, self.deck = karte_austeilen(self.deck)
