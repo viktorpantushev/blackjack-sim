@@ -1,367 +1,353 @@
 import numpy as np
 import time
-
-start_time = time.time()  
-SEED = np.random.seed(42)
-
-printe_es_aus = False
-
-def printe_aus(message= '', ja_nein=False):
-    if ja_nein == True:
-        print(message, "+")
+from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen, gewinnt_spieler
 
 
+class Blackjack:
+    def __init__(self, zaehlweise_spieler, a=2, b=6, c=8, buget=1000, decksize=6):
+        self.zaehlweise_spieler = zaehlweise_spieler
+        self.a = a
+        self.b = b
+        self.c = c
+        self.spiel_resets = 0
+        self.decksize = decksize
+        self.spieler_karte_kommt = 0.0
+        self.buget = buget
+        self.rundenlaenge = 0
+        self.validation = []
+        self.resetGame()
+        # print('Blackjack initializiert')
 
-def hand_berechnen(hand):
-    '''
-    Die Hand berechnen
-    Input: Hand
-    Output: Wert der Hand
-    '''
-    wert = 0
-    asse = 0
+    def resetGame(self, moneyreset=True):
+        self.spielerhand = []
+        self.dealerhand = []
+        self.bisherige_karten = []
+        self.deck = deck_erstellen(self.decksize)
+        self.uebrige_karten = len(self.deck)
+        self.einsatz = 0
+        self.spieler_karte_kommt = 0.0
+        self.validation = []
+        self.rundenlaenge = 0
 
-    #Generelle Berechnung
-    for karte in hand:
-        if karte in ['K', 'Q', 'J']:
-            wert+= 10
-        elif karte == 'A':
-            asse += 1
-            wert += 11
-        else:
-            wert += int(karte)
-    
-    #Für Asse nachjustieren
-    while wert > 21 and asse != 0:
-        wert -= 10
-        asse -= 1
-    
-    return wert
+        if moneyreset:
+            self.spieler_buget = self.buget
+            self.dealer_buget = self.buget
 
+    @property
+    def get_money(self):
+        return self.spieler_buget, self.dealer_buget
 
+    @property
+    def get_resets(self):
+        return self.spiel_resets
 
-def deck_erstellen(decks):
-    '''
-    Deck erstellen
-    Input: Deckanzahl
-    Output: Gemischtes Deck
-    '''
-    ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-    deck = ranks * 4 * decks
-    np.random.shuffle(deck)  
-    return deck
+    def set_A_and_B_and_C(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
 
+    # a verändern
+    def __spieler_spielt(self):
+        '''
+        Wie sicher kommen gute Karten dank Zählstrategien?
+        Output: Karten nehmen oder nicht
+        '''
+        sicherheit: float
 
+        spieler_brauche = 21 - hand_berechnen(self.spielerhand)
 
-def karte_austeilen(deck):
-    '''
-    Karte aus Deckziehen
-    Input: Deck
-    Output: gezogene Karte, restliches Deck
-    '''
-    karten = []
-    m = deck.pop()
-    karten.append(m)
-    return m, deck
-
-
-
-def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_karten):
-    '''
-    Wie sicher kommen gute Karten?
-    Input: eigene Hand, Zaehlweise, Kartenhistorie aller Spieler, Anzahl übriger Karten
-    Output: Zuverlässigkeits-Score
-    '''
-
-    if zaehlweise == 'erster Test':
-        eigene_hand = 21 - hand_berechnen(eigene_hand)
-        plusminus = 0
-        for karte in bisherige_karten:
-            if karte in ['K', 'Q', 'J', '10']:
-                plusminus += 1
-            elif karte in ['2', '3', '4', '5']:
-                plusminus -= 1
-
-        if plusminus >= 4:
-            return 0.6
-        elif plusminus >= 2:
-            return 0.3
-        elif plusminus >= 1:
-            return 0.15
-        elif plusminus == 0:
-            return 0
-        elif plusminus <= -4:
-            return -0.6
-        elif plusminus <= -2:
-            return -0.3
-        elif plusminus <= 1:
-            return -0.15 
-        else:
-            return 0
-
-    if zaehlweise == 'zweiter Test':
-        eigene_hand = 21 - hand_berechnen(eigene_hand)
-        plusminus = 0
-        niedrig = 0
-        for karte in bisherige_karten:
-            if karte in ['K', 'Q', 'J', '10']:
-                plusminus += 1
-            elif karte in  ['2', '3', '4', '5']:
-                if karte in ['2', '3']:
-                    niedrig += 1
+        if self.zaehlweise_spieler == 'high/low':
+            plusminus = 0
+            for karte in self.bisherige_karten:
+                if karte in ['K', 'Q', 'J', '10']:
+                    plusminus += 1
+                elif karte in ['2', '3', '4', '5']:
                     plusminus -= 1
+
+            if plusminus >= self.a * 2:
+                sicherheit = 0.6
+            elif plusminus >= self.a:
+                sicherheit = 0.3
+            elif plusminus >= self.a / 2:
+                sicherheit = 0.15
+            elif plusminus == 0:
+                sicherheit = 0
+            elif plusminus <= -self.a * 2:
+                sicherheit = -0.6
+            elif plusminus <= -self.a:
+                sicherheit = -0.3
+            elif plusminus <= -self.a / 2:
+                sicherheit = -0.15
+            else:
+                sicherheit = 0
+
+            spieler_karte_kommt = 0.0
+
+            if sicherheit < 0 and spieler_brauche >= 6:
+                spieler_karte_kommt = 2 * abs(sicherheit)
+            elif sicherheit < 0 and spieler_brauche <= self.a and spieler_brauche > 3:
+                spieler_karte_kommt = 1 * abs(sicherheit)
+            elif sicherheit > 0 and spieler_brauche <= self.a - 1:
+                spieler_karte_kommt = -100
+            elif sicherheit > 0 and spieler_brauche < 10:
+                spieler_karte_kommt = 1 * abs(sicherheit)
+            elif sicherheit > 0 and spieler_brauche > 10:
+                spieler_karte_kommt = 2 * abs(sicherheit)
+
+            self.spieler_karte_kommt = spieler_karte_kommt
+
+            if spieler_karte_kommt > 0.15:
+                return 'Nehmen'
+            else:
+                return 'Nicht Nehmen'
+
+        elif self.zaehlweise_spieler == 'Viktors Special':
+            plusminus = 0
+            niedrig = 0
+            for karte in self.bisherige_karten:
+                if karte in ['K', 'Q', 'J', '10']:
+                    plusminus += 1
+                elif karte in ['2', '3', '4', '5']:
+                    if karte in ['2', '3']:
+                        niedrig += 1
+
+                    plusminus -= 1
+
+            if plusminus >= self.a * 2:
+                sicherheit = 0.6
+            elif plusminus >= self.a:
+                sicherheit = 0.3
+            elif plusminus >= self.a / 2:
+                sicherheit = 0.15
+            elif plusminus == 0:
+                sicherheit = 0
+            elif plusminus <= -self.a * 2:
+                if niedrig * self.b > self.uebrige_karten:
+                    sicherheit = -1.2
                 else:
-                    plusminus -= 1
+                    sicherheit = -0.6
+            elif plusminus <= -self.a:
+                if niedrig * self.b > self.uebrige_karten:
+                    sicherheit = -0.6
+                else:
+                    sicherheit = -0.3
+            elif plusminus <= self.a / 2:
+                if niedrig * self.b > self.uebrige_karten:
+                    sicherheit = -0.3
+                else:
+                    sicherheit = -0.15
+            else:
+                sicherheit = 0
 
-        if plusminus >= 4:
-            return 0.6
-        elif plusminus >= 2:
-            return 0.3
-        elif plusminus >= 1:
-            return 0.15
-        elif plusminus == 0:
-            return 0
-        elif plusminus <= -4:
-            if niedrig * 5 > uebrige_karten:
-                return -1.2
+            spieler_karte_kommt = 0.0
+
+            if sicherheit < 0 and spieler_brauche >= self.c:
+                spieler_karte_kommt = 2 * abs(sicherheit)
+            elif sicherheit < 0 and spieler_brauche <= self.c and spieler_brauche > 3:
+                spieler_karte_kommt = 1 * abs(sicherheit)
+            elif sicherheit > 0 and spieler_brauche > 10:
+                spieler_karte_kommt = 2 * abs(sicherheit)
+            elif sicherheit > 0 and spieler_brauche <= self.c - 1:
+                spieler_karte_kommt = -100
+            elif sicherheit > 0 and spieler_brauche < 10:
+                spieler_karte_kommt = 1 * abs(sicherheit)
             else:
-                return -0.6
-        elif plusminus <= -2:
-            if niedrig * 5 > uebrige_karten:
-                return -0.6
+                print('lol ', sicherheit, ' ', spieler_brauche)
+
+            self.spieler_karte_kommt = spieler_karte_kommt
+            if spieler_karte_kommt > 0.15:
+                return 'Nehmen'
             else:
-                return -0.3
-        elif plusminus <= 1:
-            if niedrig * 5 > uebrige_karten:
-                return -0.3
+                return 'Nicht Nehmen'
+
+        elif self.zaehlweise_spieler == 'Dealer':
+            if hand_berechnen(self.dealerhand) >= 17:
+                return 'Nicht Nehmen'
             else:
-                return -0.15
+                return 'Nehmen'
+
+    def __dealer_spielt(self):
+        if hand_berechnen(self.dealerhand) >= 17:
+            return 'Nicht Nehmen'
         else:
-            return 0
+            return 'Nehmen'
+
+    def spielerrunde(self):
+        self.spielerhand = []
+        self.dealerhand = []
+        self.uebrige_karten = len(self.deck)
+
+        self.rundenlaenge += 1
+        if (self.uebrige_karten > int(float(self.decksize) * 52.0 * 0.3) and self.spieler_buget > int(
+                self.buget / 2) and self.dealer_buget > int(self.buget / 2)):
+            self.rundenlaenge += 1
+            for i in range(2):
+                spieler_karten, self.deck = karte_austeilen(self.deck)
+                self.spielerhand.append(spieler_karten)
+                self.bisherige_karten.append(spieler_karten)
+
+            for i in range(2):
+                dealer_karten, self.deck = karte_austeilen(self.deck)
+                self.dealerhand.append(dealer_karten)
+                self.bisherige_karten.append(dealer_karten)
+
+            self.uebrige_karten = len(self.deck)
+
+            verbleiben = (self.decksize * 52 / self.uebrige_karten) * 2
+            if verbleiben > 3:
+                verbleiben = 3
+            elif verbleiben < 1:
+                verbleiben = 1
+
+            verbleiben = ((self.decksize * 52) / self.uebrige_karten) * 2
+            if verbleiben > 3:
+                verbleiben = 3
+            elif verbleiben < 1:
+                verbleiben = 1
+
+            einsatz_t = 30 * verbleiben
+            self.spieler_buget -= einsatz_t
+            self.dealer_buget -= einsatz_t
+            self.einsatz += einsatz_t * 2
+
+            if gewinnt_spieler(self.dealerhand, self.spielerhand, True) and not gewinnt_spieler(self.spielerhand,
+                                                                                                self.dealerhand, True):
+                self.dealer_buget += self.einsatz
+                self.einsatz = 0
+            elif gewinnt_spieler(self.dealerhand, self.spielerhand, True) and gewinnt_spieler(self.spielerhand,
+                                                                                              self.dealerhand, True):
+                self.dealer_buget += self.einsatz / 2
+                self.spieler_buget += self.einsatz / 2
+                self.einsatz = 0
+            elif gewinnt_spieler(self.spielerhand, self.dealerhand, True):
+                einsatz_t = int(self.einsatz / 2)
+                self.dealer_buget -= einsatz_t
+                self.einsatz += einsatz_t
+
+                self.spieler_buget += self.einsatz
+                self.einsatz = 0
+
+            else:
+                # fuer ersten einsatz
+                erste_runde = True
+                self.uebrige_karten = len(self.deck)
+                spieler_in = True
+                spieler_ueberschiesst = False
+                dealer_in = True
+                dealer_ueberschiesst = False
+
+                while spieler_in and self.uebrige_karten > 2:
+                    if self.__spieler_spielt() == 'Nehmen':
+                        spieler_karten, self.deck = karte_austeilen(self.deck)
+                        self.spielerhand.append(spieler_karten)
+                        self.bisherige_karten.append(spieler_karten)
+                        if erste_runde:
+                            # Eisatz setzten
+                            verbleiben = ((self.decksize * 52) / self.uebrige_karten) * 2
+                            if verbleiben > 3:
+                                verbleiben = 3
+                            elif verbleiben < 1:
+                                verbleiben = 1
+
+                            karte_kommt = self.spieler_karte_kommt * 12.0
+                            if self.spieler_karte_kommt < 1:
+                                karte_kommt = 1
+                            if self.spieler_karte_kommt > 7:
+                                self.spieler_karte_kommt = 7
+
+                            if self.zaehlweise_spieler == 'Viktors Special':
+                                einsatz_t = int(40 * abs(karte_kommt) * (verbleiben * 1.5))
+                            else:
+                                einsatz_t = int(50 * verbleiben)
+                            self.einsatz += einsatz_t * 2
+                            self.spieler_buget -= einsatz_t
+                            self.dealer_buget -= einsatz_t
+                            erste_runde = False
+                    else:
+                        spieler_in = False
+
+                    if hand_berechnen(self.spielerhand) > 21:
+                        # print('Spieler überschiesst')
+                        spieler_in = False
+                        spieler_ueberschiesst = True
+
+                    self.uebrige_karten = len(self.deck)
+
+                # Else condition
+                while not spieler_ueberschiesst and not dealer_ueberschiesst and dealer_in and self.uebrige_karten > 2:
+                    if self.__dealer_spielt() == 'Nehmen':
+                        dealer_karten, self.deck = karte_austeilen(self.deck)
+                        self.dealerhand.append(dealer_karten)
+                        self.bisherige_karten.append(dealer_karten)
+                    else:
+                        dealer_in = False
+
+                    if hand_berechnen(self.dealerhand) > 21:
+                        # print('Spieler überschiesst')
+                        dealer_in = False
+                        dealer_ueberschiesst = True
+
+                    self.uebrige_karten = len(self.deck)
+
+            spieler_value = hand_berechnen(self.spielerhand)
+            dealer_value = hand_berechnen(self.dealerhand)
+
+            if spieler_value < 21 and dealer_value < 21:
+                wer_gewinnt = gewinnt_spieler(self.spielerhand, self.dealerhand)
+                if wer_gewinnt:
+                    wer_gewinnt = 'Spieler'
+                    self.spieler_buget += self.einsatz
+                    self.einsatz = 0
+                else:
+                    wer_gewinnt = 'Dealer'
+                    self.dealer_buget += self.einsatz
+                    self.einsatz = 0
+            elif spieler_value > 21 and dealer_value > 21:
+                wer_gewinnt = 'Niemand'
+                self.dealer_buget += self.einsatz / 2
+                self.spieler_buget += self.einsatz / 2
+                self.einsatz = 0
+            elif spieler_value > 21:
+                wer_gewinnt = 'Dealer'
+                self.dealer_buget += self.einsatz
+                self.einsatz = 0
+            else:
+                wer_gewinnt = 'Spieler'
+                self.spieler_buget += self.einsatz
+                self.einsatz = 0
+
+            karte_kommt = self.spieler_karte_kommt * 12.0
+            print(karte_kommt)
+            if karte_kommt < 1:
+                karte_kommt = 1
+            if karte_kommt > 7:
+                karte_komt = 7
+
+            verbleiben = (((self.decksize * 52) / self.uebrige_karten)) * 2
+            if verbleiben > 3:
+                verbleiben = 3
+            elif verbleiben < 1:
+                verbleiben = 1
+
+            if wer_gewinnt == 'Spieler':
+                # Spielergewinnt, kartekommt, verbleibt
+                self.validation.append([True, karte_kommt, verbleiben])
+            else:
+                self.validation.append([False, karte_kommt, verbleiben])
 
 
-def gewinnt_spieler(spieler_hand, dealer_hand, punktlandung=False):
-    '''
-    Gewinnt der Spieler, bzw mach er eine Punktlandung
-    Input: Spielerhand, Dealerhand, Punktlandung
-    Output: Spieler gewinnt? Boolean
-    '''
-    '''Rückgabe Spieler gewinne -> true sonst false'''
-    if punktlandung:
-        if hand_berechnen(spieler_hand) == 21:
-            return True
-    else:
-        if (21 - hand_berechnen(spieler_hand)) < (21 - hand_berechnen(dealer_hand)):
-            return False
-        elif (21 - hand_berechnen(spieler_hand)) > (21 - hand_berechnen(dealer_hand)):
-            return True
-        elif (21 - hand_berechnen(spieler_hand)) == (21 - hand_berechnen(dealer_hand)):
-            if len(spieler_hand) > len(dealer_hand):
-                return False
-            elif len(spieler_hand) < len(dealer_hand):
-                return True
-
-
-#Fix naming
-def denk_logik(karten_chance, spieler_brauche, gegenspieler_braucht):
-    spieler_karte_kommt = 0
-    gegenspieler_karte_kommt = 0
-    
-    if karten_chance < 0 and spieler_brauche >= 6:
-        spieler_karte_kommt = 2 * abs(karten_chance)
-    elif karten_chance < 0 and spieler_brauche < 6 and spieler_brauche > 3:
-        spieler_karte_kommt = 1 * abs(karten_chance)
-    elif karten_chance > 0 and spieler_brauche < 7:
-        spieler_karte_kommt = -100
-    elif karten_chance > 0 and spieler_brauche < 10:
-        spieler_karte_kommt = 1 * abs(karten_chance)
-    elif karten_chance > 0 and spieler_brauche > 10:
-        spieler_karte_kommt = 2 * abs(karten_chance)
-    if karten_chance < 0 and gegenspieler_braucht >= 6:
-        gegenspieler_karte_kommt = 2 * abs(karten_chance)
-    elif karten_chance < 0 and gegenspieler_braucht < 6 and gegenspieler_braucht > 3:
-        gegenspieler_karte_kommt = 1 * abs(karten_chance)
-    elif karten_chance > 0 and gegenspieler_braucht < 7:
-        gegenspieler_karte_kommt = -100
-    elif karten_chance > 0 and gegenspieler_braucht < 10:
-        gegenspieler_karte_kommt = 1 * abs(karten_chance)
-    elif karten_chance > 0 and gegenspieler_braucht > 10:
-        gegenspieler_karte_kommt = 2 * abs(karten_chance)
-
-    return spieler_karte_kommt, gegenspieler_karte_kommt
-
-
-def blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstrategie, dealerstrategie):
-    uebrige_karten = len(deck)
-    einsatz = 0
-    while uebrige_karten > 5 and spieler_buget > 0 and dealer_buget > 0:
-        printe_aus(f'Spielerbuget: {spieler_buget}', printe_es_aus)
-        printe_aus(f'Dealerbuget: {dealer_buget}', printe_es_aus)
-        
-        einsatz_temp = 10
-        einsatz += einsatz_temp
-        spieler_buget -= einsatz_temp/2
-        dealer_buget -= einsatz_temp/2
-
-        dealer_karten_total = []
-        spieler_karten_total = []
-        #Zwei Karten nehmen
-        spieler_karten, deck = karte_austeilen(deck)
-        spieler_karten_total.append(spieler_karten)
-        bisherige_karten.append(spieler_karten)
-        spieler_karten, deck = karte_austeilen(deck)
-        spieler_karten_total.append(spieler_karten)
-        bisherige_karten.append(spieler_karten)
-
-        dealer_karten, deck = karte_austeilen(deck)
-        dealer_karten_total.append(dealer_karten)
-        bisherige_karten.append(dealer_karten)
-        dealer_karten, deck = karte_austeilen(deck)
-        dealer_karten_total.append(dealer_karten)
-        bisherige_karten.append(dealer_karten)
-
-        #Patt
-        if gewinnt_spieler(spieler_karten_total, dealer_karten_total, True) and gewinnt_spieler(dealer_karten_total, spieler_karten_total, True):
-            printe_aus("Patt", printe_es_aus)
-            printe_aus(hand_berechnen(spieler_karten_total), printe_es_aus)
-            printe_aus((spieler_karten_total), printe_es_aus)
-            dealer_buget += einsatz
-            return spieler_buget, dealer_buget, deck, bisherige_karten
-        #Spieler gewinnt
-        elif gewinnt_spieler(spieler_karten_total, dealer_karten_total, True):
-            printe_aus("Spieler gewinnt", printe_es_aus)
-            printe_aus(hand_berechnen(spieler_karten_total), printe_es_aus)
-            printe_aus((spieler_karten_total), printe_es_aus)
-            spieler_buget
-            spieler_buget += einsatz
-            return spieler_buget, dealer_buget, deck, bisherige_karten
-        #Dealer gewinnt
-        elif gewinnt_spieler(dealer_karten_total, spieler_karten_total, True):
-            printe_aus("Dealer gewinnt", printe_es_aus)
-            printe_aus(hand_berechnen(dealer_karten_total), printe_es_aus)
-            printe_aus((dealer_karten_total), printe_es_aus)
-            dealer_buget += einsatz
-            return spieler_buget, dealer_buget, deck, bisherige_karten
         else:
-            printe_aus('Niemand gewinnt', printe_es_aus)
+            if self.spieler_buget <= int(self.buget / 2) or self.dealer_buget <= int(self.buget / 2):
+                self.spiel_resets += 1
+                tempspieler, tempdealer = self.spieler_buget, self.dealer_buget
+                spieler_gewinnt = False
+                if tempspieler > tempdealer:
+                    spieler_gewinnt = True
 
-        einsatz += einsatz_temp
-        spieler_buget -= einsatz_temp/2
-        dealer_buget -= einsatz_temp/2
+                temp_ruendenlaenge = self.rundenlaenge
+                self.resetGame()
+                return spieler_gewinnt, temp_ruendenlaenge, self.validation
+            else:
+                self.resetGame(moneyreset=False)
 
-        #Spieler denkt nach
-        karten_chance = berechne_kommende_karte(spieler_karten_total, spielerstrategie, bisherige_karten, uebrige_karten)
-        dealerbraucht = 21 - hand_berechnen(dealer_karten_total)
-        spielerbraucht = 21 - hand_berechnen(spieler_karten_total)
-
-        printe_aus(f'Einsatz: {einsatz}', printe_es_aus)
-        printe_aus(f'Spielerhand: {spieler_karten_total}', printe_es_aus)
-        printe_aus(f'Spieler braucht: {spielerbraucht}', printe_es_aus)
-        printe_aus(f'Dealerhand: {dealer_karten_total}', printe_es_aus)
-        printe_aus(f'Dealer braucht: {dealerbraucht}', printe_es_aus)
-
-        spieler_denkt_spieler_karte_kommt, spieler_denkt_dealer_karte_kommt = denk_logik(karten_chance, spielerbraucht, dealerbraucht)
-
-        printe_aus(f'Kartenchance: {karten_chance}', printe_es_aus)
-        printe_aus(f'Spieler denkt Spieler karte kommt: {spieler_denkt_spieler_karte_kommt}', printe_es_aus)
-        printe_aus(f'Spieler denkt Dealer karte kommt: {spieler_denkt_dealer_karte_kommt}', printe_es_aus)
-
-
-        if spieler_denkt_spieler_karte_kommt == -100:
-            continue
-        elif spieler_denkt_dealer_karte_kommt == -100 and spieler_denkt_spieler_karte_kommt > 0.3:
-            spieler_karten, deck = karte_austeilen(deck)
-            spieler_karten_total.append(spieler_karten)
-            bisherige_karten.append(spieler_karten)
-        elif spieler_denkt_spieler_karte_kommt > 0:
-            spieler_karten, deck = karte_austeilen(deck)
-            spieler_karten_total.append(spieler_karten)
-            bisherige_karten.append(spieler_karten)
-
-
-
-        #Dealer denkt nach
-        karten_chance = berechne_kommende_karte(dealer_karten_total, dealerstrategie, bisherige_karten, uebrige_karten)
-        dealerbraucht = 21 - hand_berechnen(dealer_karten_total)
-        spielerbraucht = 21 - hand_berechnen(spieler_karten_total)
-        
-        dealer_denkt_dealer_karte_kommt, dealer_denkt_spieler_karte_kommt = denk_logik(karten_chance, dealerbraucht, spielerbraucht)
-
-        if dealer_denkt_spieler_karte_kommt == -100:
-            continue
-        elif dealer_denkt_dealer_karte_kommt == -100 and dealer_denkt_spieler_karte_kommt > 0.3:
-            dealer_karten, deck = karte_austeilen(deck)
-            dealer_karten_total.append(dealer_karten)
-            bisherige_karten.append(dealer_karten)
-        elif dealer_denkt_spieler_karte_kommt > 0:
-            dealer_karten, deck = karte_austeilen(deck)
-            dealer_karten_total.append(dealer_karten)
-            bisherige_karten.append(dealer_karten)
-
-
-
-        printe_aus(f'Kartenchance: {karten_chance}', printe_es_aus)
-        printe_aus(f'Dealer denkt Spieler karte kommt: {dealer_denkt_spieler_karte_kommt}', printe_es_aus)
-        printe_aus(f'Dealer denkt Dealer karte kommt: {dealer_denkt_dealer_karte_kommt}', printe_es_aus)
-
-        printe_aus('', printe_es_aus)
-        uebrige_karten = len(deck)
-
-    spieler_buget += einsatz/2
-    dealer_buget += einsatz/2
-
-    printe_aus('', printe_es_aus)
-    printe_aus('', printe_es_aus)
-    return spieler_buget, dealer_buget, deck, bisherige_karten 
-
-
-def blackjack():
-    runden = 0
-    deck = deck_erstellen(8)
-    uebrige_karten = len(deck)
-    spieler_buget = 1000
-    dealer_buget = 1000
-    bisherige_karten = []
-
-
-    while uebrige_karten > 5 and spieler_buget > 0 and dealer_buget > 0:
-        runden += 1
-        spieler_buget, dealer_buget, deck, bisherige_karten = blackjack_spielrunde(spieler_buget, dealer_buget, deck, bisherige_karten, 'erster Test', 'erster Test')
-        printe_aus(f'spieler_buget {spieler_buget}', printe_es_aus)
-        printe_aus(f'dealer_buget {dealer_buget}', printe_es_aus)
-        uebrige_karten = len(deck)
-    printe_aus(f'Runde {runden}', printe_es_aus)
-    return spieler_buget, dealer_buget
-
-
-
-
-
-
-
-
-
-
-
-
-spielergesamt = 0
-dealergesamt = 0
-iteration = 10_000
-
-for _ in range (iteration):
-    spieler_buget, dealer_buget = blackjack()
-    spielergesamt += spieler_buget
-    dealergesamt += dealer_buget
-    printe_aus(f'Spielerbuget {spieler_buget}', printe_es_aus)
-    printe_aus(f'Dealer_buget {dealer_buget}', printe_es_aus)
-
-spielergesamt /= iteration
-dealergesamt /= iteration
-
-printe_aus(f'Spieler gesamt: {spielergesamt}', True)
-printe_aus(f'Dealer gesamt: {dealergesamt}', True)
-
-
-end_time = time.time()
-elapsed_time = end_time - start_time
-print(elapsed_time)
+        return False, 0, []
