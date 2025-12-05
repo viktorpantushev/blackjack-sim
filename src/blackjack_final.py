@@ -156,8 +156,8 @@ class Blackjack:
                 spieler_karte_kommt = -100
             elif sicherheit > 0 and spieler_brauche < 10:
                 spieler_karte_kommt = 1 * abs(sicherheit)
-            else:
-                print('lol ', sicherheit, ' ', spieler_brauche)
+            # else:
+            #     print('lol ', sicherheit, ' ', spieler_brauche)
             
 
             self.spieler_karte_kommt = spieler_karte_kommt
@@ -324,7 +324,7 @@ class Blackjack:
 
 
             karte_kommt = self.spieler_karte_kommt * 12.0
-            print(karte_kommt)
+            # print(karte_kommt)
             if karte_kommt < 1:
                 karte_kommt = 1
             if karte_kommt > 7:
