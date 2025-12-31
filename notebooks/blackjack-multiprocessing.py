@@ -1,29 +1,24 @@
 import numpy as np
-import pandas as pd
-import time
 import sys
-
-
 if '../src' in sys.path:
     sys.path.remove('../src')
-
 sys.path.append('../src')
 
-from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen
 from blackjack_final import Blackjack
-
 from multiprocessing import Pool
+
+total_batches = 2  # total batches *  12
+batch_size = 600
 
 def f(x):
     spieler_weise = 'Viktors Special'
     # spieler_weise = 'high/low'
     # spieler_weise = 'Dealer'
 
-    # iterationen_a = [1_000, 5_000, 10_000, 20_000, 40_000, 60_000, 80_000, 100_000]
-    total_batches = 10
-    batch_size = 100
 
-    for _ in range(1, total_batches):
+    spieler_gewinnt_total = []
+
+    for _ in range(0, total_batches):
         spieler_gewinnt = []
         spieler_verliert = []
 
@@ -45,7 +40,6 @@ def f(x):
             # game.set_A_and_B_and_C(a=8, b=6, c=9)
 
             while resets < batch_size:
-
                 spieler_gewinnt_j, temp_rundenlaenge, temp_validation = game.spielerrunde()
 
                 if game.get_resets > resets:
@@ -61,16 +55,24 @@ def f(x):
 
             # print('Spieler hat n mal gewinnen: ', spieler_gewinnt_n)
             spieler_gewinnt.append(spieler_gewinnt_n)
-        print(spieler_gewinnt)
-
-            # spieler_verliert.append(spieler_verliert_n)
+        # print(spieler_gewinnt)
+        spieler_gewinnt_total.append(spieler_gewinnt)
+    return spieler_gewinnt_total
 
 
 
 if __name__ == '__main__':
+    spieler_gewinnt_total = []
     with Pool(12) as p:
-        print(p.map(f, [1,1,1,1,1]))
+        results = p.map(f, range(12))  # Pass a range or list to map
+        # print(results)
+
+    for result in results:
+        # print(result)
+        spieler_gewinnt_total.append(result)
+
+    spieler_gewinnt_total = np.array(spieler_gewinnt_total)
 
 
-
-
+    print(spieler_gewinnt_total.mean())
+    print(spieler_gewinnt_total.std(ddof=1) / np.sqrt(len(spieler_gewinnt_total)))

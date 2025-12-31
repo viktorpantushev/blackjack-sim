@@ -1,4 +1,4 @@
-import numpy as np
+'''import numpy as np
 import time
 from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen
 
@@ -9,11 +9,6 @@ start_time = time.time()
 
 
 def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_karten, a=2,b=3):
-    '''
-    Wie sicher kommen gute Karten?
-    Input: eigene Hand, Zaehlweise, Kartenhistorie aller Spieler, Anzahl übriger Karten
-    Output: Zuverlässigkeits-Score
-    '''
     
     if zaehlweise == 'erster Test':
         eigene_hand = 21 - hand_berechnen(eigene_hand)
@@ -83,12 +78,6 @@ def berechne_kommende_karte(eigene_hand, zaehlweise, bisherige_karten, uebrige_k
 
 
 def gewinnt_spieler(spieler_hand, dealer_hand, punktlandung=False):
-    '''
-    Gewinnt der Spieler, bzw mach er eine Punktlandung
-    Input: Spielerhand, Dealerhand, Punktlandung
-    Output: Spieler gewinnt? Boolean
-    '''
-    '''Rückgabe Spieler gewinne -> true sonst false'''
     if punktlandung:
         if hand_berechnen(spieler_hand) == 21:
             return True
@@ -219,4 +208,4 @@ def spielerrunde(spieler_buget, dealer_buget, deck, bisherige_karten, spielerstr
         dealer_buget += einsatz
 
 
-    return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, wer_gewinnt
+    return spieler_buget, dealer_buget, spieler_karten_total, dealer_karten_total, deck, bisherige_karten, spielerstrategie, wer_gewinnt'''

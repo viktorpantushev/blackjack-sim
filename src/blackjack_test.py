@@ -1,4 +1,4 @@
-import numpy as np
+'''import numpy as np
 import time
 from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen, gewinnt_spieler
 
@@ -350,4 +350,4 @@ class Blackjack:
             else:
                 self.resetGame(moneyreset=False)
 
-        return False, 0, []
+        return False, 0, []'''
