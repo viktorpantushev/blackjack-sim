@@ -23,7 +23,7 @@ The goal is to provide a quantitative comparison between several card counting s
     * `blackjack_final.py`: Implements everything else in the BackJack class.
     
 ## 📊 Interpretation of Results
-The player wins around 44% of the time (in 7200 rounds). 
+The player wins around 44% of the time (in 7200 rounds) using Viktor's Special.
 
 
 ## 🛠 Installation & Usage
