@@ -18,6 +18,7 @@ class Blackjack:
         #print('Blackjack initializiert')
 
     def resetGame(self, moneyreset=True):
+        '''Reset game values'''
         self.spielerhand = []
         self.dealerhand = []
         self.bisherige_karten = []
@@ -42,6 +43,7 @@ class Blackjack:
 
 
     def set_A_and_B_and_C(self, a,b,c):
+        '''Set parameters for cardcounting'''
         self.a = a
         self.b = b
         self.c = c
@@ -49,10 +51,10 @@ class Blackjack:
 
 
     #a verändern
-    def __spieler_spielt(self):
+    def __player_plays(self):
         '''
-        Wie sicher kommen gute Karten dank Zählstrategien?
-        Output: Karten nehmen oder nicht
+        Should player continue drawing cards?
+        Output: Take card or don't take card ('Nehmen', 'Nicht Nehmen')
         '''
         sicherheit:float
 
@@ -173,13 +175,17 @@ class Blackjack:
                 return 'Nehmen'
 
 
-    def __dealer_spielt(self):
+    def __dealer_plays(self):
+        '''Dealer logics'''
         if hand_berechnen(self.dealerhand) >= 17:
             return 'Nicht Nehmen'
         else:
             return 'Nehmen'
 
-    def spielerrunde(self):
+    def game_round(self):
+        '''
+        Start a game round in Blackjack.
+        '''
         self.spielerhand = []
         self.dealerhand = []
         self.uebrige_karten = len(self.deck)
@@ -241,7 +247,7 @@ class Blackjack:
                 dealer_ueberschiesst = False
 
                 while spieler_in and self.uebrige_karten > 2:
-                    if self.__spieler_spielt() == 'Nehmen':
+                    if self.__player_plays() == 'Nehmen':
                         spieler_karten, self.deck = karte_austeilen(self.deck)
                         self.spielerhand.append(spieler_karten)
                         self.bisherige_karten.append(spieler_karten)
@@ -279,7 +285,7 @@ class Blackjack:
 
                 #Else condition
                 while not spieler_ueberschiesst and not dealer_ueberschiesst and dealer_in and self.uebrige_karten > 2:
-                    if self.__dealer_spielt() == 'Nehmen':
+                    if self.__dealer_plays() == 'Nehmen':
                         dealer_karten, self.deck = karte_austeilen(self.deck)
                         self.dealerhand.append(dealer_karten)
                         self.bisherige_karten.append(dealer_karten)

@@ -42,7 +42,7 @@ def f(x):
             # game.set_A_and_B_and_C(a=8, b=6, c=9)
 
             while resets < batch_size:
-                spieler_gewinnt_j, temp_rundenlaenge, temp_validation = game.spielerrunde()
+                spieler_gewinnt_j, temp_rundenlaenge, temp_validation = game.game_round()
 
                 if game.get_resets > resets:
                     if spieler_gewinnt_j == True:
