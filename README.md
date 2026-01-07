@@ -27,7 +27,7 @@ The player wins around 44% of the time (in 7200 rounds).
 
 
 ## 🛠 Installation & Usage
-0. **Count your cpu cores and change cpu_cores in blackjack-multiprocessing.py**
+**Count your cpu cores and change cpu_cores in blackjack-multiprocessing.py**
     ```bash
     cpu_cores = ...
     ```
@@ -35,4 +35,4 @@ The player wins around 44% of the time (in 7200 rounds).
     ```bash
     pip install -r requirements.txt
     ```
-2.  **Execute blackjack-multiprocessing.py:**
+2.  **Execute blackjack-multiprocessing.py and enjoy the power of Python Multi-Processing!**
