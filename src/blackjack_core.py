@@ -28,6 +28,7 @@ def gewinnt_spieler(eigene_hand, fremde_hand, punktlandung=False):
                 return False
 
 
+
 def hand_berechnen(hand):
     '''
     Die Hand berechnen
@@ -71,7 +72,6 @@ def deck_erstellen(decks):
     # Shuffle the deck
     np.random.shuffle(deck)
     return deck
-
 
 
 

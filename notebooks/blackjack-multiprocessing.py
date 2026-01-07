@@ -4,6 +4,8 @@ if '../src' in sys.path:
     sys.path.remove('../src')
 sys.path.append('../src')
 
+cpu_cores = 12
+
 from blackjack_final import Blackjack
 from multiprocessing import Pool
 
@@ -59,8 +61,8 @@ def f(x):
 
 if __name__ == '__main__':
     spieler_gewinnt_total = []
-    with Pool(12) as p:
-        results = p.map(f, range(12))  # Pass a range or list to map
+    with Pool(cpu_cores) as p:
+        results = p.map(f, range(cpu_cores))  # Pass a range or list to map
         # print(results)
 
     for result in results:
