@@ -55,8 +55,6 @@ def hand_berechnen(hand):
     return wert
 
 
-import numpy as np
-
 
 def deck_erstellen(decks):
     '''
@@ -75,9 +73,6 @@ def deck_erstellen(decks):
     return deck
 
 
-# Example usage
-deck = deck_erstellen(2)  # Create a stack of 2 decks with the default seed
-print(deck)
 
 
 def karte_austeilen(deck):
