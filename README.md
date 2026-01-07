@@ -6,11 +6,11 @@ This project provides a high-performance simulation environment for the game **B
 The goal is to provide a quantitative comparison between several card counting strategies and their effectiveness against a dealer using standard Blackjack rules. The primary metric for success is the win rate.
 
 ### Strategies
-* **Hi-Lo Counting Strategy:** Assigns values to cards and keeps a running count, increasing bets when the count is favorable.
-* **Viktor's Special:** Count low cards and Hi-Lo
+* **Hi-Lo Counting Strategy:** High card ('K', 'Q', 'J', '10') +1, low cards ('2', '3', '4', '5') -1
+* **Viktor's Special:** Hi-Lo and extra count for very low cards ('2', '3') +1
 
 ## 🚀 Features
-* **Multi-Processing:** Leverages `Mulitiprocessing` to distribute simulations across all available CPU cores for maximum performance.
+* **Multi-Processing:** Leverages `Multiprocessing` to distribute simulations across all available CPU cores for maximum performance.
 
 
 ## 📂 Project Structure
