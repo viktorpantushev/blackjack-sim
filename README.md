@@ -3,7 +3,7 @@
 This project provides a high-performance simulation environment for the game **Blackjack**. Using the **Monte Carlo simulation**, hundreds of games are automated to statistically evaluate the efficiency of different counting strategies.
 
 ## 🎯 Project Objective
-The goal is to provide a quantitative comparison between various card counting strategies and their effectiveness against a dealer using standard Blackjack rules. The primary metric for success is the win rate.
+The goal is to provide a quantitative comparison between several card counting strategies and their effectiveness against a dealer using standard Blackjack rules. The primary metric for success is the win rate.
 
 ### Strategies
 * **Hi-Lo Counting Strategy:** Assigns values to cards and keeps a running count, increasing bets when the count is favorable.
