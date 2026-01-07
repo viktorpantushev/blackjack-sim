@@ -328,7 +328,7 @@ class Blackjack:
             if karte_kommt < 1:
                 karte_kommt = 1
             if karte_kommt > 7:
-                karte_komt = 7
+                karte_kommt = 7
 
             verbleiben = (((self.decksize*52) / self.uebrige_karten))*2
             if verbleiben > 3:

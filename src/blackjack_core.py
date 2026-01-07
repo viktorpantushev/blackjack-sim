@@ -1,5 +1,6 @@
 import numpy as np
 
+seed=42
 
 def gewinnt_spieler(eigene_hand, fremde_hand, punktlandung=False):
     '''
@@ -54,20 +55,29 @@ def hand_berechnen(hand):
     return wert
 
 
+import numpy as np
 
 
 def deck_erstellen(decks):
     '''
     Deck erstellen
-    Input: Deckanzahl
+    Input: Deckanzahl, optionaler Seed für Randomisierung
     Output: Gemischtes Deck
     '''
+    # Ranks of the cards
     ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+    # Create the full deck
     deck = ranks * 4 * decks
+    # Set the random seed
+    np.random.seed(seed)
+    # Shuffle the deck
     np.random.shuffle(deck)
     return deck
 
 
+# Example usage
+deck = deck_erstellen(2)  # Create a stack of 2 decks with the default seed
+print(deck)
 
 
 def karte_austeilen(deck):

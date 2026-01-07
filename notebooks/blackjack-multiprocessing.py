@@ -7,7 +7,7 @@ sys.path.append('../src')
 from blackjack_final import Blackjack
 from multiprocessing import Pool
 
-total_batches = 2  # total batches *  12
+total_batches = 1  # total batches *  12
 batch_size = 600
 
 def f(x):
@@ -45,17 +45,13 @@ def f(x):
                 if game.get_resets > resets:
                     if spieler_gewinnt_j == True:
                         spieler_gewinnt_n += 1
-                    # elif spieler_gewinnt_j==False:
-                    # spieler_verliert_n += 1
 
                     resets = game.get_resets
 
                     rundenlaenge.append(temp_rundenlaenge)
                     validation.append(temp_validation)
 
-            # print('Spieler hat n mal gewinnen: ', spieler_gewinnt_n)
             spieler_gewinnt.append(spieler_gewinnt_n)
-        # print(spieler_gewinnt)
         spieler_gewinnt_total.append(spieler_gewinnt)
     return spieler_gewinnt_total
 
