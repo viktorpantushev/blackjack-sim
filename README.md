@@ -7,7 +7,7 @@ The goal is to provide a quantitative comparison between several card counting s
 
 ### Strategies
 * **Hi-Lo Counting Strategy (using one score):**  Add 1 to the score for each high card played ('K', 'Q', 'J', '10'), subtract 1 for each low card ('2', '3', '4', '5').
-* **Viktor's Special (using two scores):** First score is Hi-Lo and second one is calculated by adding 1 to very low cards ('2', '3') +1
+* **Viktor's Special (using two scores):** First score is Hi-Lo and second one is calculated by adding 1 to very low cards ('2', '3').
 
 ## 🚀 Features
 * **Multi-Processing:** Leverages `Multiprocessing` to distribute simulations across all available CPU cores for maximum performance.
