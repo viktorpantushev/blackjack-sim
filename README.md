@@ -15,7 +15,7 @@ The goal is to provide a quantitative comparison between several card counting s
 
 ## 📂 Project Structure
 * `notebooks/blackjack-multiprocessing.py`: Central entry point for simulation execution with multiprocessing (not a notebook because multiprocessing and notebooks don't work together).
-* `notebooks/notebook.ipynb`: Central entry point for simulation execution without multiprocessing (not a notebook because multiprocessing and notebooks don't work together).
+* `notebooks/notebook.ipynb`: Central entry point for simulation execution without multiprocessing.
 
 
 * `src/`:
