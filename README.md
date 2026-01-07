@@ -28,7 +28,7 @@ The player wins around 44% of the time (in 7200 rounds).
 
 ## 🛠 Installation & Usage
 **Count your cpu cores and change cpu_cores in blackjack-multiprocessing.py** 
-    (```bash
+    (```
     cpu_cores = ...
     ```)
 1.  **Install dependencies:**
