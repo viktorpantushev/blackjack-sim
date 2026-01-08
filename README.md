@@ -36,3 +36,7 @@ The player wins around 44% of the time (in 7200 rounds).
     pip install -r requirements.txt
     ```
 2.  **Execute blackjack-multiprocessing.py and enjoy the power of Python Multi-Processing!**
+
+**OR (without multiprocessing):** 
+
+1.  **Run notebook.ipynb**
