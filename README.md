@@ -20,7 +20,7 @@ The goal is to provide a quantitative comparison between several card counting s
 
 * `src/`:
     * `blackjack_core.py`: Implements basic functions for: who wins, calculating hand values, mixing decks and dealing cards.
-    * `blackjack_final.py`: Implements everything else in the BackJack class.
+    * `blackjack_final.py`: Implements everything else in the Backjack class.
     
 ## 📊 Interpretation of Results
 The player wins around 44% of the time (in 7200 rounds). 
