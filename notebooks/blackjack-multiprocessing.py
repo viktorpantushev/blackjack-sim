@@ -9,7 +9,7 @@ cpu_cores = 12
 from blackjack_final import Blackjack
 from multiprocessing import Pool
 
-total_batches = 1  # total batches *  12
+total_batches = 2  # total batches *  12
 batch_size = 100
 
 def f(x):
@@ -37,12 +37,12 @@ def f(x):
 
             resets = 0
             ## Best for Viktors Special a = 2, b = 6, c = 9
-            #game.set_A_and_B_and_C(a=2, b=4, c=9)
+            game.set_A_and_B_and_C(a=2, b=4, c=9)
             ## Best for high/low a = 8
-            game.set_A_and_B_and_C(a=8, b=6, c=9)
+            # game.set_A_and_B_and_C(a=8, b=6, c=9)
 
             while resets < batch_size:
-                spieler_gewinnt_j, temp_rundenlaenge, temp_validation = game.game_round()
+                spieler_gewinnt_j, temp_rundenlaenge, temp_validation = game.spielerrunde()
 
                 if game.get_resets > resets:
                     if spieler_gewinnt_j == True:

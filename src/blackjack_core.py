@@ -68,7 +68,7 @@ def deck_erstellen(decks):
     # Create the full deck
     deck = ranks * 4 * decks
     # Set the random seed
-    np.random.seed(seed)
+    # np.random.seed(seed)
     # Shuffle the deck
     np.random.shuffle(deck)
     return deck
