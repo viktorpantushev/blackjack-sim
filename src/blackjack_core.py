@@ -1,6 +1,7 @@
 import numpy as np
 
 seed=42
+np.random.seed(seed)
 
 def gewinnt_spieler(eigene_hand, fremde_hand, punktlandung=False):
     '''
@@ -67,8 +68,6 @@ def deck_erstellen(decks):
     ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
     # Create the full deck
     deck = ranks * 4 * decks
-    # Set the random seed
-    # np.random.seed(seed)
     # Shuffle the deck
     np.random.shuffle(deck)
     return deck
