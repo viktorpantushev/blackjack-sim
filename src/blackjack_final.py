@@ -185,44 +185,57 @@ class Blackjack:
         self.uebrige_karten = len(self.deck)
         
         self.rundenlaenge += 1
+
+        #wenn                karten unter 30 %                         und buget von spieler und dealer größer als die Hälfte
         if (self.uebrige_karten > int(float(self.decksize)*52.0*0.3) and self.spieler_buget > int(self.buget/2) and self.dealer_buget > int(self.buget/2)):
             self.rundenlaenge += 1
+            #zwei karten an spieler geben
             for i in range(2):
                 spieler_karten, self.deck = karte_austeilen(self.deck)
                 self.spielerhand.append(spieler_karten)
                 self.bisherige_karten.append(spieler_karten)
-            
+
+            #zwei kraten an dealer geben
             for i in range(2):
                 dealer_karten, self.deck = karte_austeilen(self.deck)
                 self.dealerhand.append(dealer_karten)
                 self.bisherige_karten.append(dealer_karten)
 
+            #deckgröße erneuern
             self.uebrige_karten = len(self.deck)
 
+            #Übrige karten berechnen
             verbleiben = (self.decksize*52 / self.uebrige_karten) * 2
             if verbleiben > 3:
                 verbleiben = 3
             elif verbleiben < 1:
                 verbleiben = 1
 
+            #redundant
             verbleiben = ((self.decksize*52) / self.uebrige_karten) * 2
             if verbleiben > 3:
                 verbleiben = 3
             elif verbleiben < 1:
                 verbleiben = 1
 
+            #spieleeinsatz einstellen
             einsatz_t = 30 * verbleiben
             self.spieler_buget -= einsatz_t
             self.dealer_buget -= einsatz_t
             self.einsatz += einsatz_t*2
 
+            #Dealer gewinnt mit 21, aber spieler nicht
             if gewinnt_spieler(self.dealerhand, self.spielerhand, True) and not gewinnt_spieler(self.spielerhand, self.dealerhand, True):
                 self.dealer_buget += self.einsatz
                 self.einsatz = 0
+
+            #Dealer und Spieler haben 21
             elif gewinnt_spieler(self.dealerhand, self.spielerhand, True) and gewinnt_spieler(self.spielerhand, self.dealerhand, True):
                 self.dealer_buget += self.einsatz/2
                 self.spieler_buget += self.einsatz/2
                 self.einsatz = 0
+
+            #Spieler hat 21
             elif gewinnt_spieler(self.spielerhand, self.dealerhand, True):
                 einsatz_t = int(self.einsatz/2)
                 self.dealer_buget -= einsatz_t
@@ -231,6 +244,7 @@ class Blackjack:
                 self.spieler_buget += self.einsatz
                 self.einsatz = 0
 
+            # Weiterspielen
             else:
                 #fuer ersten einsatz
                 erste_runde = True
@@ -240,11 +254,15 @@ class Blackjack:
                 dealer_in = True
                 dealer_ueberschiesst = False
 
+                #Solange der spieler noch zieht und es genügend Karten gibt
                 while spieler_in and self.uebrige_karten > 2:
+                    #Spieler entschiedet sich zu nehemen
                     if self.__spieler_spielt() == 'Nehmen':
+                        # Spieler Nimmt
                         spieler_karten, self.deck = karte_austeilen(self.deck)
                         self.spielerhand.append(spieler_karten)
                         self.bisherige_karten.append(spieler_karten)
+                        # Einsatz
                         if erste_runde:
                             #Eisatz setzten
                             verbleiben = ((self.decksize*52) / self.uebrige_karten) * 2
@@ -253,23 +271,29 @@ class Blackjack:
                             elif verbleiben < 1:
                                 verbleiben = 1
 
+                            #Dia Zahl 12 ist zufällig gewählt und in zukunft variierbar
                             karte_kommt = self.spieler_karte_kommt * 12.0
                             if self.spieler_karte_kommt < 1:
                                 karte_kommt = 1
                             if self.spieler_karte_kommt > 7:
                                 self.spieler_karte_kommt = 7
 
+                            #Zaehlweise Viktor Special? -> Zusatzregeln
                             if self.zaehlweise_spieler == 'Viktors Special':
                                 einsatz_t = int(40 * abs(karte_kommt) * (verbleiben*1.5))
                             else:
                                 einsatz_t = int(50 * verbleiben)
+
+                            # Einsatz auszahlen and beide Spieler
                             self.einsatz += einsatz_t*2
                             self.spieler_buget -= einsatz_t
                             self.dealer_buget -= einsatz_t
                             erste_runde = False
                     else:
+                        #Spieler ist  raus
                         spieler_in = False
-                
+
+                    #Spielerhand berechnen
                     if hand_berechnen(self.spielerhand) > 21:
                         #print('Spieler überschiesst')
                         spieler_in = False
@@ -277,15 +301,18 @@ class Blackjack:
 
                     self.uebrige_karten = len(self.deck)
 
-                #Else condition
+                #Dealer spielt
                 while not spieler_ueberschiesst and not dealer_ueberschiesst and dealer_in and self.uebrige_karten > 2:
+                    # Dealer nimmt?
                     if self.__dealer_spielt() == 'Nehmen':
                         dealer_karten, self.deck = karte_austeilen(self.deck)
                         self.dealerhand.append(dealer_karten)
                         self.bisherige_karten.append(dealer_karten)
                     else:
+                        # Dealer Raus
                         dealer_in = False
 
+                    # Hand berechnen
                     if hand_berechnen(self.dealerhand) > 21:
                         #print('Spieler überschiesst')
                         dealer_in = False
@@ -294,35 +321,43 @@ class Blackjack:
 
                     self.uebrige_karten = len(self.deck)
             
-
+            #Spieler und Dealerhand berechnen
             spieler_value = hand_berechnen(self.spielerhand)
             dealer_value = hand_berechnen(self.dealerhand)
 
+            #Wenn Spieler und Dealer unter 21 (es geht darum wer gewinnt)
             if spieler_value < 21 and dealer_value < 21:
+                #gewinner setzen
                 wer_gewinnt = gewinnt_spieler(self.spielerhand, self.dealerhand)
+                #Spieler gewinnt
                 if wer_gewinnt:
                     wer_gewinnt = 'Spieler'
                     self.spieler_buget += self.einsatz
                     self.einsatz = 0
+                #Dealer Gewinnt
                 else:
                     wer_gewinnt = 'Dealer'
                     self.dealer_buget += self.einsatz
                     self.einsatz = 0
+
+            #Niemand gewinnt
             elif spieler_value > 21 and dealer_value > 21:
                 wer_gewinnt = 'Niemand'
                 self.dealer_buget += self.einsatz/2
                 self.spieler_buget += self.einsatz/2
                 self.einsatz = 0
+            # Spieler überschiesst
             elif spieler_value > 21:
                 wer_gewinnt = 'Dealer'
                 self.dealer_buget += self.einsatz
                 self.einsatz = 0
+            # Letzte Condition: Dealer überspielt
             else:
                 wer_gewinnt = 'Spieler'
                 self.spieler_buget += self.einsatz
                 self.einsatz = 0
 
-
+            # 12 ist wieder rein zufällig gesetzt
             karte_kommt = self.spieler_karte_kommt * 12.0
             # print(karte_kommt)
             if karte_kommt < 1:
@@ -330,6 +365,7 @@ class Blackjack:
             if karte_kommt > 7:
                 karte_kommt = 7
 
+            #verbleibende karten berechnen
             verbleiben = (((self.decksize*52) / self.uebrige_karten))*2
             if verbleiben > 3:
                 verbleiben = 3
@@ -337,13 +373,14 @@ class Blackjack:
                 verbleiben = 1
 
             if wer_gewinnt == 'Spieler':
-                #Spielergewinnt, kartekommt, verbleibt
+                #Spielergewinnt
                 self.validation.append([True, karte_kommt, verbleiben])
             else:
                 self.validation.append([False, karte_kommt, verbleiben])
 
 
         else:
+            # Spielereset
             if self.spieler_buget <= int(self.buget/2) or self.dealer_buget <= int(self.buget/2):
                 self.spiel_resets += 1
                 tempspieler, tempdealer = self.spieler_buget, self.dealer_buget
