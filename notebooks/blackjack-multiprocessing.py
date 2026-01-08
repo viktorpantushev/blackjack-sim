@@ -10,7 +10,7 @@ from blackjack_final import Blackjack
 from multiprocessing import Pool
 
 total_batches = 2  # total batches *  12
-batch_size = 100
+batch_size = 600
 
 def f(x):
     spieler_weise = 'Viktors Special'
