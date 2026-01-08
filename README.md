@@ -1,4 +1,4 @@
-# 🃏 Blackjack Monte Carlo Analysis
+# 🃏 Blackjack Monte Carlo Simulation
 
 This project provides a high-performance simulation environment for the game **Blackjack**. Using the **Monte Carlo simulation**, hundreds of games are automated to statistically evaluate the efficiency of different counting strategies.
 
