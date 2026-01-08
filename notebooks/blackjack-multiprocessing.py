@@ -12,6 +12,7 @@ from multiprocessing import Pool
 total_batches = 2  # total batches *  cpu_cores
 batch_size = 600
 
+# Function needed to run the simulation with multiprocessing
 def f(x):
     spieler_weise = 'Viktors Special'
     # spieler_weise = 'high/low'
