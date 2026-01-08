@@ -9,7 +9,7 @@ cpu_cores = 12
 from blackjack_final import Blackjack
 from multiprocessing import Pool
 
-total_batches = 2  # total batches *  12
+total_batches = 2  # total batches *  cpu_cores
 batch_size = 600
 
 def f(x):
