@@ -4,6 +4,7 @@ from blackjack_core import hand_berechnen, deck_erstellen, karte_austeilen, gewi
 
 class Blackjack:
     def __init__(self, zaehlweise_spieler, a=2, b=6, c=8, buget=1000, decksize=6):
+        '''INIT'''
         self.zaehlweise_spieler = zaehlweise_spieler
         self.a = a
         self.b = b
@@ -18,6 +19,7 @@ class Blackjack:
         #print('Blackjack initializiert')
 
     def resetGame(self, moneyreset=True):
+        '''Reset Spiel, nach Pleite'''
         self.spielerhand = []
         self.dealerhand = []
         self.bisherige_karten = []
@@ -34,14 +36,17 @@ class Blackjack:
 
     @property
     def get_money(self):
+        '''Money Getter'''
         return self.spieler_buget, self.dealer_buget
 
     @property
     def get_resets(self):
+        '''Resets Getter'''
         return self.spiel_resets
 
 
     def set_A_and_B_and_C(self, a,b,c):
+        '''A,B,C Setter'''
         self.a = a
         self.b = b
         self.c = c
@@ -174,6 +179,7 @@ class Blackjack:
 
 
     def __dealer_spielt(self):
+        ''''Dealer Logik'''
         if hand_berechnen(self.dealerhand) >= 17:
             return 'Nicht Nehmen'
         else:
